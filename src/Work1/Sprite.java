@@ -1,7 +1,5 @@
 package Work1;
 
-import java.awt.*;
-
 public abstract class Sprite {
     protected float x;
     protected float y;
@@ -39,7 +37,4 @@ public abstract class Sprite {
     protected float getHeight() {
         return 2f * halfHeight;
     }
-    //EJB
-    abstract void update(GameCanvas canvas, float deltaTime);
-    abstract void render(GameCanvas canvas, Graphics g);
 }

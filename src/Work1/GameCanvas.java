@@ -14,7 +14,6 @@ public class GameCanvas extends JPanel {
     GameCanvas(MainCircles controller) {
         lastFrameTime = System.nanoTime();
         this.controller = controller;
-        backGround = new BackGround();
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {

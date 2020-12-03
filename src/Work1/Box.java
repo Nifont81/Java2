@@ -3,19 +3,15 @@ package Work1;
 import java.awt.*;
 import java.util.Random;
 
-public class Ball extends Sprite implements GraphObj{
+public class Box extends Sprite implements GraphObj{
     Random rnd = new Random();
-//    private final Color color = new Color (
-//            (int)(Math.random() * 255),
-//            (int)(Math.random() * 255),
-//            (int)(Math.random() * 255)
-//    );
 
     private final Color color;
     private float vX;
     private float vY;
+    private float vKx;
 
-    Ball() {
+    Box() {
         halfHeight = 20 + (float) (Math.random() * 50f);
         halfWidth = halfHeight;
         color = new Color(rnd.nextInt());
@@ -49,7 +45,7 @@ public class Ball extends Sprite implements GraphObj{
     @Override
     public void render(GameCanvas canvas, Graphics g) {
         g.setColor(color);
-        g.fillOval((int) getLeft(), (int) getTop(),
+        g.fillRect((int) getLeft(), (int) getTop(),
                 (int) getWidth(), (int) getHeight());
     }
 }

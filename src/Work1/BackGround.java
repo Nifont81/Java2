@@ -3,7 +3,7 @@ package Work1;
 import java.awt.*;
 import java.util.Random;
 
-public class BackGround {
+public class BackGround implements GraphObj{
     private float r;
     private float g;
     private float b;
@@ -11,10 +11,6 @@ public class BackGround {
     private float vG;
     private float vB;
     private Color color;
-
-    public Color getColor() {
-        return color;
-    }
 
     public BackGround() {
         Random rnd = new Random();
@@ -28,19 +24,22 @@ public class BackGround {
         // System.out.println("vR="+vR+" vG="+vG+" vB="+vB);
     }
 
-    public void update(float dT) {
-        r += dT * vR;
-        g += dT * vG;
-        b += dT * vB;
+    @Override
+    public void update(GameCanvas canvas, float deltaTime) {
+        r += deltaTime * vR;
+        g += deltaTime * vG;
+        b += deltaTime * vB;
         Random rnd = new Random();
-        if (r < 50 || r > 255) vR = -vR; // <50 - избегаем мрачных цветов!
-        if (g < 50 || g > 255) vG = -vG;
-        if (b < 50 || b > 255) vB = -vB;
+        if (r < 50 || r > 253) vR = -vR; // <50 - избегаем мрачных цветов!
+        if (g < 50 || g > 253) vG = -vG;
+        if (b < 50 || b > 253) vB = -vB;
 
         color = new Color((int) r, (int) g, (int) b);
-        // ??????????????????????????????????????????????????????
-        // Может можно изменить цвет без создания нового объекта?
-        // типа color=Color.RGB(r,g,b), но я не нашел.          ?
-        // ??????????????????????????????????????????????????????
+    }
+
+    
+    @Override
+    public void render(GameCanvas canvas, Graphics g) {
+        canvas.setBackground(color);
     }
 }
