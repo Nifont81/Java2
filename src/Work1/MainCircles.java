@@ -6,14 +6,12 @@ import java.awt.event.MouseEvent;
 
 public class MainCircles extends JFrame {
 
-    private static final int POS_X = 400;
-    private static final int POS_Y = 200;
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
-    private int countBall = 5; // количество шариков;
-    private int maxBall = 20; // максимальное количество шариков;
+    private int countGrObj = 5; // количество объектов;
+    private int maxGrObj = 20; // максимальное количество объетов;
 
-    Sprite[] sprites = new Sprite[maxBall];
+    GraphObj[] graphObjs = new GraphObj[maxGrObj +1];
 
     public static void main(String[] args) {
         new MainCircles();
@@ -25,7 +23,7 @@ public class MainCircles extends JFrame {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setLocationRelativeTo(null); // Располагаем окно ровно по центру экрана;
 
-        setTitle("Circles");
+        setTitle("Графические объекты");
         GameCanvas canvas = new GameCanvas(this);
         initApplication();
         add(canvas);
@@ -33,8 +31,10 @@ public class MainCircles extends JFrame {
     }
 
     private void initApplication() {
-        for (int i = 0; i < countBall; i++) {
-            sprites[i] = new Ball();
+        graphObjs[0]=new BackGround();
+        for (int i = 1; i <= countGrObj; i++) {
+            if (i % 2 == 0) graphObjs[i] = new Ball();
+            else graphObjs[i] = new Box();
         }
     }
 
@@ -44,26 +44,26 @@ public class MainCircles extends JFrame {
     }
 
     public void onMouse(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1 && countBall < maxBall) {
-            sprites[countBall++] = new Ball();
-            System.out.println("Шарик добавлен!");
-        } else if (e.getButton() == MouseEvent.BUTTON3 && countBall > 0) {
-            countBall--;
-            System.out.println("Шарик удален!");
+        if (e.getButton() == MouseEvent.BUTTON1 && countGrObj < maxGrObj) {
+            ++countGrObj;
+            if (countGrObj % 2 == 0) graphObjs[countGrObj] = new Ball();
+            else graphObjs[countGrObj] = new Box();
+            System.out.println("Объект добавлен!");
+        } else if (e.getButton() == MouseEvent.BUTTON3 && countGrObj > 0) {
+            countGrObj--;
+            System.out.println("Объект удален!");
         }
     }
 
     private void update(GameCanvas canvas, float deltaTime) {
-        canvas.backGround.update(deltaTime);
-        for (int i = 0; i < countBall; i++) {
-            sprites[i].update(canvas, deltaTime);
+        for (int i = 0; i <= countGrObj; i++) {
+            graphObjs[i].update(canvas, deltaTime);
         }
     }
 
     private void render(GameCanvas canvas, Graphics g) {
-        canvas.setBackground(canvas.backGround.getColor());
-        for (int i = 0; i < countBall; i++) {
-            sprites[i].render(canvas, g);
+        for (int i = 0; i <= countGrObj; i++) {
+            graphObjs[i].render(canvas, g);
         }
     }
 }
