@@ -34,6 +34,7 @@ public class PhoneBook {
         LinkedList<String> phoneLst = new LinkedList<>();
         LinkedList<Person> personLst = book.get(fio);
         if (personLst==null) return null;
+
         Iterator<Person> iter = personLst.iterator();
         while (iter.hasNext()) {
             phoneLst.add(iter.next().getPhone());
@@ -45,9 +46,13 @@ public class PhoneBook {
         LinkedList<String> mailLst = new LinkedList<>();
         LinkedList<Person> personLst = book.get(fio);
         if (personLst==null) return null;
-        Iterator<Person> iter = personLst.iterator();
-        while (iter.hasNext()) {
-            mailLst.add(iter.next().getEmail());
+
+//        Iterator<Person> iter = personLst.iterator();
+//        while (iter.hasNext()) {
+//            mailLst.add(iter.next().getEmail());
+//        }
+        for (Person person: personLst) {
+            mailLst.add(person.getEmail());
         }
         return  mailLst;
     }
