@@ -2,7 +2,7 @@ package Work2;
 
 public class MainExeption {
     public static void main(String[] args) {
-        String str = "10 3 6 2\n2 3 3 23\n5 6 7 1\n300 3 1 9";
+        String str = "10 3 6 2\n2 3 -3 23\n5 6 7 1\n300 3 1 9";
 
         String[][] arrStr = new String[4][4];
 
@@ -22,8 +22,6 @@ public class MainExeption {
             e.printStackTrace();
             System.out.println("Модуль [Main]. Ошибка! Один из элементов - не число! Выход!");
         }
-
-
     }
 
     public static String[][] strToArrStr(String str) throws Exception {
