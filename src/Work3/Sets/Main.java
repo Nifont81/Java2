@@ -33,7 +33,9 @@ public class Main {
             Integer numberWord = map.get(word);
             if (numberWord == null) map.put(word, 1);
             else map.put(word, ++numberWord);
+            //map.put(word, map.getOrDefault(word,1));
         }
+        //map.put(word, map.getOrDefault(word,1));
 
         // Выводим на экран:
         System.out.println("\n[LinkedHashMap]");
