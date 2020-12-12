@@ -9,7 +9,7 @@ public class MainCircles extends JFrame {
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
     private int countGrObj = 5; // количество объектов;
-    private int maxGrObj = 20; // максимальное количество объетов;
+    private final int maxGrObj = 20; // максимальное количество объетов;
 
     GraphObj[] graphObjs = new GraphObj[maxGrObj +1];
 
