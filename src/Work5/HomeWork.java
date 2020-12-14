@@ -33,6 +33,29 @@ for (int i = 0; i < size; i++) {
 arr[i] = (float)(arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
 }
  */
+
+class CalculationRC implements Runnable {
+
+    int id;
+    float[] calcArr;
+    int deltaI;
+
+    public CalculationRC(float[] calcArr, int deltaI, int id) {
+        this.calcArr = calcArr;
+        this.deltaI = deltaI;
+        this.id=id;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < calcArr.length; i++) {
+            calcArr[i] = (float) (calcArr[i] * Math.sin(0.2f + (i+deltaI) / 5f)
+                    * Math.cos(0.2f + (i+deltaI) / 5f) * Math.cos(0.4f + (i+deltaI) / 2f));
+        }
+        System.out.println(id+" поток ["+Thread.currentThread().getName()+"] выполнил задачу!");
+    }
+}
+
 public class HomeWork {
     static final int size = 10000000;
     static final int h = size / 2;
@@ -40,43 +63,12 @@ public class HomeWork {
 
     private static long t1; // Стартовое время в расчетах производительности;
 
-    static class CalculationRC implements Runnable {
-        /* ????????????????????????????????????????????????????????????????????????????????????????????????
-
-        Вопрос: в этом месте для компилятора необходим static class, иначе компилятор выдает ошибку.
-        Со статичными полями класса все понятно, а со статичным классом - не совсем? Объясните пожалуйста,
-        ведь все равно создаются отдельные объекты этого класса.
-        И даже если вызов переписать из нестатичного метода, как в [HWNonStatic - этот же каталог] , все
-        равно java пишет рекомендацию сделать его статичным.
-
-        ???????????????????????????????????????????????????????????????????????????????????????????????????
-         */
-        int id;
-        float[] calcArr;
-        int deltaI;
-
-        public CalculationRC(float[] calcArr, int deltaI, int id) {
-            this.calcArr = calcArr;
-            this.deltaI = deltaI;
-            this.id=id;
-        }
-
-        @Override
-        public void run() {
-            for (int i = 0; i < h; i++) {
-                calcArr[i] = (float) (calcArr[i] * Math.sin(0.2f + (i+deltaI) / 5)
-                        * Math.cos(0.2f + (i+deltaI) / 5) * Math.cos(0.4f + (i+deltaI) / 2));
-            }
-            System.out.println(id+" поток ["+Thread.currentThread().getName()+"] выполнил задачу!");
-        }
-    }
-
     public static void main(String[] args) {
         System.out.println("[Один поток]");
         fillArr();
         startTimer();
         for (int i = 0; i < size; i++) {
-            arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
+            arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5f) * Math.cos(0.2f + i / 5f) * Math.cos(0.4f + i / 2f));
         }
         printDeltaTime();
         pr(1); pr(size-1);
@@ -95,7 +87,12 @@ public class HomeWork {
         t1.start();
         t2.start();
 
-        while (t1.isAlive() || t2.isAlive()) ;
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         System.arraycopy(arr1, 0, arr, 0, h);
         System.arraycopy(arr2, 0, arr, h, h);
@@ -125,19 +122,18 @@ public class HomeWork {
         System.out.println("[Проверка!] arr ["+i+"] = "+arr[i]);
     }
 }
-
-/* Результаты работы программы:
+/*
 
 [Один поток]
-Время выполнения: 827.0 мс.
-[Проверка!] arr [1] = 0.17933902
-[Проверка!] arr [9999999] = 0.06892343
+Время выполнения: 934.0 мс.
+[Проверка!] arr [1] = 0.22295786
+[Проверка!] arr [9999999] = 0.10660095
 
 [Два потока]
 1 поток [Thread-0] выполнил задачу!
 2 поток [Thread-1] выполнил задачу!
-Время выполнения: 507.0 мс.
-[Проверка!] arr [1] = 0.17933902
-[Проверка!] arr [9999999] = 0.06892343
+Время выполнения: 551.0 мс.
+[Проверка!] arr [1] = 0.22295786
+[Проверка!] arr [9999999] = 0.10660095
 
  */

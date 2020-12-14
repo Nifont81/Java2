@@ -7,9 +7,7 @@ public class HWNonStatic {
 
     private static long t1; // Стартовое время в расчетах производительности;
 
-    /*static*/ class CalculationRC implements Runnable {
-    // И тут пишет, что [inner class may be static], т. к. он implements Runnable ... что-то про реализацию
-    // интерфейсов. Они всегда должны быть статичны?
+    static class CalculationRC implements Runnable {
 
         int id;
         float[] calcArr;
@@ -24,14 +22,14 @@ public class HWNonStatic {
         @Override
         public void run() {
             for (int i = 0; i < h; i++) {
-                calcArr[i] = (float) (calcArr[i] * Math.sin(0.2f + (i + deltaI) / 5)
-                        * Math.cos(0.2f + (i + deltaI) / 5) * Math.cos(0.4f + (i + deltaI) / 2));
+                calcArr[i] = (float) (calcArr[i] * Math.sin(0.2f + (i + deltaI) / 5f)
+                        * Math.cos(0.2f + (i + deltaI) / 5f) * Math.cos(0.4f + (i + deltaI) / 2f));
             }
             System.out.println(id + " поток [" + Thread.currentThread().getName() + "] выполнил задачу!");
         }
     }
 
-    class CalculationRC2 implements Runnable {
+    static class CalculationRC2 implements Runnable {
     // Не входило в задание! Реализация с общим доступом к одному массиву:
         int i1, i2;
 
@@ -43,8 +41,8 @@ public class HWNonStatic {
         @Override
         public void run() {
             for (int i = i1; i < i2; i++) {
-                arr[i] = (float) (arr[i] * Math.sin(0.2f + (i) / 5)
-                        * Math.cos(0.2f + (i) / 5) * Math.cos(0.4f + (i) / 2));
+                arr[i] = (float) (arr[i] * Math.sin(0.2f + (i) / 5f)
+                        * Math.cos(0.2f + (i) / 5f) * Math.cos(0.4f + (i) / 2f));
             }
             System.out.println("Поток [" + Thread.currentThread().getName() + "] выполнил задачу!");
         }
@@ -55,7 +53,7 @@ public class HWNonStatic {
         fillArr();
         startTimer();
         for (int i = 0; i < size; i++) {
-            arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
+            arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5f) * Math.cos(0.2f + i / 5f) * Math.cos(0.4f + i / 2f));
         }
         printDeltaTime();
         pr(1);
@@ -75,7 +73,12 @@ public class HWNonStatic {
         t1.start();
         t2.start();
 
-        while (t1.isAlive() || t2.isAlive()) ;
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         System.arraycopy(arr1, 0, arr, 0, h);
         System.arraycopy(arr2, 0, arr, h, h);
@@ -93,7 +96,12 @@ public class HWNonStatic {
         t3.start();
         t4.start();
 
-        while (t3.isAlive() || t4.isAlive()) ;
+        try {
+            t3.join();
+            t4.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         printDeltaTime();
 
@@ -131,22 +139,22 @@ public class HWNonStatic {
 /* Результаты:
 
 [Один поток]
-Время выполнения: 948.0 мс.
-[Проверка!] arr [1] = 0.17933902
-[Проверка!] arr [9999999] = 0.06892343
+Время выполнения: 927.0 мс.
+[Проверка!] arr [1] = 0.22295786
+[Проверка!] arr [9999999] = 0.10660095
 
 [Два потока]
 1 поток [Thread-0] выполнил задачу!
 2 поток [Thread-1] выполнил задачу!
-Время выполнения: 504.0 мс.
-[Проверка!] arr [1] = 0.17933902
-[Проверка!] arr [9999999] = 0.06892343
+Время выполнения: 549.0 мс.
+[Проверка!] arr [1] = 0.22295786
+[Проверка!] arr [9999999] = 0.10660095
 
 [Два потока с доступом к ощему массиву]
 Поток [Thread-2] выполнил задачу!
 Поток [Thread-3] выполнил задачу!
-Время выполнения: 485.0 мс.
-[Проверка!] arr [1] = 0.17933902
-[Проверка!] arr [9999999] = 0.06892343
+Время выполнения: 478.0 мс.
+[Проверка!] arr [1] = 0.22295786
+[Проверка!] arr [9999999] = 0.10660095
 
  */
