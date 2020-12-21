@@ -1,5 +1,6 @@
 package client;
 
+import library.Protocol;
 import network.SocketThread;
 import network.SocketThreadListener;
 
@@ -9,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ClientGUI extends JFrame implements ActionListener,
@@ -24,7 +24,7 @@ public class ClientGUI extends JFrame implements ActionListener,
     private final JTextField tfIPAddress = new JTextField("127.0.0.1");
     private final JTextField tfPort = new JTextField("8189");
     private final JCheckBox cbAlwaysOnTop = new JCheckBox("Always on top");
-    private final JTextField tfLogin = new JTextField("ivan");
+    private final JTextField tfLogin = new JTextField("Ivan");
     private final JPasswordField tfPassword = new JPasswordField("123");
     private final JButton btnLogin = new JButton("Login");
 
@@ -63,6 +63,7 @@ public class ClientGUI extends JFrame implements ActionListener,
         btnSend.addActionListener(this);
         tfMessage.addActionListener(this);
         btnLogin.addActionListener(this);
+        btnDisconnect.addActionListener(this);
 
         panelTop.add(tfIPAddress);
         panelTop.add(tfPort);
@@ -73,6 +74,7 @@ public class ClientGUI extends JFrame implements ActionListener,
         panelBottom.add(btnDisconnect, BorderLayout.WEST);
         panelBottom.add(tfMessage, BorderLayout.CENTER);
         panelBottom.add(btnSend, BorderLayout.EAST);
+        panelBottom.setVisible(false);
 
         add(scrollLog, BorderLayout.CENTER);
         add(scrollUsers, BorderLayout.EAST);
@@ -91,6 +93,8 @@ public class ClientGUI extends JFrame implements ActionListener,
             sendMessage();
         } else if (src == btnLogin) {
             connect();
+        } else if (src == btnDisconnect) {
+            socketThread.close();
         } else {
             throw new RuntimeException("Undefined source: " + src);
         }
@@ -99,12 +103,14 @@ public class ClientGUI extends JFrame implements ActionListener,
     private void connect() {
         try {
             Socket s = new Socket(tfIPAddress.getText(), Integer.parseInt(tfPort.getText()));
-            /*
-            Socket s = new Socket();
-            s.connect(new InetSocketAddress(tfIPAddress.getText(),
-                    Integer.parseInt(tfPort.getText()) ), 2000);
-             */
             socketThread = new SocketThread(this, "Client", s);
+
+//            try {
+//                Thread.sleep(100);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
         } catch (IOException e) {
             e.printStackTrace();
             showException(Thread.currentThread(), e);
@@ -113,13 +119,13 @@ public class ClientGUI extends JFrame implements ActionListener,
 
     private void sendMessage() {
         String msg = tfMessage.getText();
-//        String username = tfLogin.getText();
+        String username = tfLogin.getText();
         if ("".equals(msg)) return;
         tfMessage.setText(null);
         tfMessage.grabFocus();
         socketThread.sendMessage(msg);
-//        putLog(String.format("%s: %s", username, msg));
-//        wrtMsgToLogFile(msg, username);
+        putLog(String.format("%s: %s", username, msg));
+        wrtMsgToLogFile(msg, username);
     }
 
     private void wrtMsgToLogFile(String msg, String username) {
@@ -143,6 +149,8 @@ public class ClientGUI extends JFrame implements ActionListener,
                 log.setCaretPosition(log.getDocument().getLength());
             }
         });
+//        log.append(msg + "\n");
+//        log.setCaretPosition(log.getDocument().getLength());
     }
 
     private void showException(Thread t, Throwable e) {
@@ -167,7 +175,7 @@ public class ClientGUI extends JFrame implements ActionListener,
 
     /**
      * Socket thread listener methods implementation
-     * */
+     */
 
     @Override
     public void onSocketStart(SocketThread thread, Socket socket) {
@@ -177,16 +185,49 @@ public class ClientGUI extends JFrame implements ActionListener,
     @Override
     public void onSocketStop(SocketThread thread) {
         putLog("Socket stopped");
+        panelBottom.setVisible(false);
+        panelTop.setVisible(true);
+
     }
 
     @Override
     public void onSocketReady(SocketThread thread, Socket socket) {
         putLog("Socket ready");
+        panelBottom.setVisible(true);
+        panelTop.setVisible(false);
+        //My
+        socketThread.sendMessage(Protocol.getAuthRequest(
+                tfLogin.getText(), new String(tfPassword.getPassword())));
     }
 
     @Override
     public void onReceiveString(SocketThread thread, Socket socket, String msg) {
-        putLog(msg);
+        System.out.println("CHATSERVER MSG=" + msg);
+        String[] arr = msg.split(Protocol.DELIMITER);
+        String msgType = arr[0];
+        String msgTime, msgFrom, msgText;
+        switch (msgType) {
+            case Protocol.TYPE_BROADCAST:
+                if (arr.length != 4) {
+                    putLog("Принятое сообщение c ошибкой!");
+                    return;
+                }
+                msgTime = arr[1];
+                msgFrom = arr[2];
+                msgText = arr[3];
+                putLog(msgFrom + ": " + msgText);
+                break;
+            case Protocol.AUTH_ACCEPT:
+                if (arr.length != 2) {
+                    putLog("Принятое сообщение c ошибкой!");
+                    return;
+                }
+                msgFrom = arr[1];
+                putLog(msgFrom + " подключен!");
+                break;
+            default:
+                putLog(msg);
+        }
     }
 
     @Override
