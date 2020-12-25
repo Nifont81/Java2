@@ -8,8 +8,7 @@ import java.util.Scanner;
 public class SocketServer {
     private static final String SERVER_NAME = "Сервер";
     public static void main(String[] args) {
-        try {
-            ServerSocket serverSocket = new ServerSocket(8189);
+        try (ServerSocket serverSocket = new ServerSocket(8189)){
             serverSocket.setSoTimeout(30000);
             Socket socket = serverSocket.accept();
             System.out.println("Соединение установлено!");
